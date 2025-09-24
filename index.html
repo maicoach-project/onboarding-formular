@@ -81,6 +81,7 @@
     <main>
         <h1>Vstupní dotazník</h1>
         <form id="onboardingForm">
+            <input type="hidden" id="psid" name="psid">
             <div class="form-group">
                 <label for="jmeno">Jméno a příjmení</label>
                 <input type="text" id="jmeno" name="jmeno" required>
@@ -132,6 +133,14 @@
     </main>
 
     <script>
+        // KÓD PRO ZÍSKÁNÍ PSID Z URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const psid = urlParams.get('psid');
+
+        // Pokud v URL najdeme psid, vložíme ho do skrytého políčka ve formuláři
+        if (psid) {
+            document.getElementById('psid').value = psid;
+        }
         // !! DŮLEŽITÉ !! Vložte sem svoji TEST URL z n8n Webhook uzlu.
         const webhookUrl = 'https://jbzone.app.n8n.cloud/webhook-test/8c424519-8eba-4436-87dc-aaf25d928f3a';
 
