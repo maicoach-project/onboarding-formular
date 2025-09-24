@@ -80,6 +80,7 @@
 
     <main>
         <h1>Vstupní dotazník</h1>
+        <script defer src="https://connect.facebook.net/en_US/messenger.Extensions.js"></script>
         <form id="onboardingForm">
             <input type="hidden" id="psid" name="psid">
             <div class="form-group">
@@ -149,43 +150,42 @@
         const statusMessage = document.getElementById('statusMessage');
 
         form.addEventListener('submit', function(event) {
-            // Zabráníme klasickému odeslání formuláře, které by znovu načetlo stránku
             event.preventDefault();
-
-            // Zobrazíme uživateli, že se něco děje a zablokujeme tlačítko
             statusMessage.textContent = 'Odesílám data...';
             statusMessage.className = '';
             submitButton.disabled = true;
 
-            // Vytvoříme objekt s daty z formuláře
             const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
 
-            // Odešleme data pomocí Fetch API na naši n8n URL
             fetch(webhookUrl, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             })
             .then(response => {
                 if (response.ok) {
-                    // Pokud n8n odpoví úspěšně (status 200-299)
-                    statusMessage.textContent = 'Hotovo! Děkujeme za vyplnění.';
+                    statusMessage.textContent = 'Hotovo! Děkujeme. Okno se za chvíli zavře.';
                     statusMessage.className = 'success';
-                    // Můžeme formulář i skrýt nebo vymazat
-                    // form.reset(); 
+
+                    // Po 1.5 sekundě zavoláme funkci pro zavření webview
+                    setTimeout(() => {
+                        MessengerExtensions.requestCloseBrowser(function success() {
+                            // callback pro úspěšné zavření (může zůstat prázdný)
+                        }, function error(err) {
+                            // callback pro chybu (např. pokud doména není na whitelistu)
+                            console.error(err);
+                        });
+                    }, 1500); // 1500 ms = 1.5 sekundy
+
                 } else {
-                    // Pokud n8n odpoví s chybou
                     throw new Error('Chyba při odesílání. Zkuste to prosím znovu.');
                 }
             })
             .catch(error => {
-                // Pokud nastane chyba sítě atd.
                 statusMessage.textContent = error.message;
                 statusMessage.className = 'error';
-                submitButton.disabled = false; // Povolíme tlačítko pro další pokus
+                submitButton.disabled = false;
             });
         });
     </script>
