@@ -167,6 +167,7 @@
                 if (response.ok) {
                     statusMessage.textContent = 'Hotovo! Děkujeme. Okno se za chvíli zavře.';
                     statusMessage.className = 'success';
+                    window.close();
 
                     // Po 1.5 sekundě zavoláme funkci pro zavření webview
                     setTimeout(() => {
