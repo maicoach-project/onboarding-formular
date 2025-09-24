@@ -2,10 +2,184 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <title>Onboarding Formulář</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vstupní formulář</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        main {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #222;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; /* Důležité pro správné zobrazení paddingu */
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #a0a0a0;
+            cursor: not-allowed;
+        }
+        #statusMessage {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+    </style>
 </head>
 <body>
-    <h1>Testovací stránka pro formulář</h1>
-    <p>Již brzy zde bude formulář pro zadání vašich cílů.</p>
+
+    <main>
+        <h1>Vstupní dotazník</h1>
+        <form id="onboardingForm">
+            <div class="form-group">
+                <label for="jmeno">Jméno a příjmení</label>
+                <input type="text" id="jmeno" name="jmeno" required>
+            </div>
+            <div class="form-group">
+                <label for="pohlavi">Pohlaví</label>
+                <select id="pohlavi" name="pohlavi">
+                    <option value="muž">Muž</option>
+                    <option value="žena">Žena</option>
+                    <option value="neuvedeno">Nechci uvádět</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="vek">Věk</label>
+                <input type="number" id="vek" name="vek">
+            </div>
+            <div class="form-group">
+                <label for="cilovaDistance">Cílová distance (např. 10 km, půlmaraton)</label>
+                <input type="text" id="cilovaDistance" name="cilovaDistance" required>
+            </div>
+            <div class="form-group">
+                <label for="cilovyCas">Cílový čas (např. 00:50:00)</label>
+                <input type="text" id="cilovyCas" name="cilovyCas">
+            </div>
+            <div class="form-group">
+                <label for="datumCile">Datum splnění cíle</label>
+                <input type="date" id="datumCile" name="datumCile">
+            </div>
+            <div class="form-group">
+                <label for="tydenniKm">Aktuální objem naběhaných km / týdně</label>
+                <input type="number" id="tydenniKm" name="tydenniKm">
+            </div>
+            <div class="form-group">
+                <label for="tydenniBehy">Počet týdenních běhů</label>
+                <input type="number" id="tydenniBehy" name="tydenniBehy">
+            </div>
+            <div class="form-group">
+                <label for="nejdelsiBeh">Nejdelší běh v aktuální přípravě (v km)</label>
+                <input type="text" id="nejdelsiBeh" name="nejdelsiBeh">
+            </div>
+            <div class="form-group">
+                <label for="zraneni">Předchozí operace či zranění (stručně)</label>
+                <textarea id="zraneni" name="zraneni" placeholder="Pokud žádné, nechte prázdné..."></textarea>
+            </div>
+            
+            <button type="submit" id="submitButton">Odeslat údaje</button>
+            <p id="statusMessage"></p>
+        </form>
+    </main>
+
+    <script>
+        // !! DŮLEŽITÉ !! Vložte sem svoji TEST URL z n8n Webhook uzlu.
+        const webhookUrl = 'https://jbzone.app.n8n.cloud/webhook-test/8c424519-8eba-4436-87dc-aaf25d928f3a';
+
+        const form = document.getElementById('onboardingForm');
+        const submitButton = document.getElementById('submitButton');
+        const statusMessage = document.getElementById('statusMessage');
+
+        form.addEventListener('submit', function(event) {
+            // Zabráníme klasickému odeslání formuláře, které by znovu načetlo stránku
+            event.preventDefault();
+
+            // Zobrazíme uživateli, že se něco děje a zablokujeme tlačítko
+            statusMessage.textContent = 'Odesílám data...';
+            statusMessage.className = '';
+            submitButton.disabled = true;
+
+            // Vytvoříme objekt s daty z formuláře
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            // Odešleme data pomocí Fetch API na naši n8n URL
+            fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Pokud n8n odpoví úspěšně (status 200-299)
+                    statusMessage.textContent = 'Hotovo! Děkujeme za vyplnění.';
+                    statusMessage.className = 'success';
+                    // Můžeme formulář i skrýt nebo vymazat
+                    // form.reset(); 
+                } else {
+                    // Pokud n8n odpoví s chybou
+                    throw new Error('Chyba při odesílání. Zkuste to prosím znovu.');
+                }
+            })
+            .catch(error => {
+                // Pokud nastane chyba sítě atd.
+                statusMessage.textContent = error.message;
+                statusMessage.className = 'error';
+                submitButton.disabled = false; // Povolíme tlačítko pro další pokus
+            });
+        });
+    </script>
+
 </body>
 </html>
