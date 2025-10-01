@@ -21,7 +21,7 @@
 <body>
     <div class="container">
         <h1>Týdenní dostupnost</h1>
-        <p>Zaškrtni prosím všechny dny, ve které máš čas a chuť trénovat. Trenér Matěj ti podle toho upraví plán.</p>
+        <p>Zaškrtni prosím všechny dny, ve které máš čas a chuť trénovat. Trenér ti podle toho upraví plán.</p>
         <form id="scheduleForm">
             <div class="days-grid">
                 <label class="day-label"><input type="checkbox" name="days" value="Pondělí"> Pondělí</label>
@@ -45,7 +45,7 @@
             messageEl.textContent = 'Odesílám...';
             
             // TOTO JE URL TVÉHO NOVÉHO WEBHOKU V N8N
-            const webhookUrl = 'https://TVUJ-N8N-WEBHOOK-URL.n8n.cloud/webhook/update-schedule'; 
+            const webhookUrl = 'https://jbzone.app.n8n.cloud/webhook-test/adf28cca-6fce-4dab-affb-93b31228e9b2'; 
 
             // Získáme userId z URL adresy stránky
             const params = new URLSearchParams(window.location.search);
